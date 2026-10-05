@@ -1,0 +1,44 @@
+## .NET
+bin/
+obj/
+out/
+publish/
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## VS Code
+.vscode/
+
+## JetBrains Rider
+.idea/
+*.sln.iml
+
+## Logs
+*.log
+logs/
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## Secrets / environment
+.env
+.env.*
+secrets.json
+appsettings.Development.json
+
+## Certificates
+*.pfx
+*.p12
+*.key
+*.pem
+
+## Azure publish settings
+*.PublishSettings
+*.pubxml
+*.pubxml.user
