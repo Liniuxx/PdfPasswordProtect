@@ -1,71 +1,27 @@
 # VipaPDFProtect
 
-ASP.NET Core .NET 10 API that:
-- downloads a PDF from a SharePoint site's default document library using Microsoft Graph;
-- accepts `PlainPassword` or decrypts `EncryptedPassword` with AES-128 / ECB / PKCS7;
-- protects the PDF with a user password using PDFsharp AES-128 PDF encryption;
-- creates `<DestinationUrl>/Merged` if needed;
-- uploads `<original>_withpassword.pdf`;
-- returns the protected SharePoint URL.
-
-## Required Azure setting
-
-Set this only in Azure App Service -> Settings -> Environment variables:
-
-`PDF_PASSWORD_ENCRYPTION_KEY`
-
-The value must be exactly 16 UTF-8 bytes. Do not commit the real key to GitHub.
-
-## Authentication
-
-Uses `DefaultAzureCredential`. In Azure App Service enable System Assigned Managed Identity and grant that identity Microsoft Graph / SharePoint access to the target site.
+.NET 10 API based on the same Microsoft Graph / Managed Identity pattern as VipaPDFMerge.
 
 ## Endpoint
-
-`POST /api/pdf/protect`
-
-Encrypted password example:
+`POST /api/protect-pdf`
 
 ```json
 {
-  "OneDriveUrl": "https://xxx.sharepoint.com/sites/correspondence/",
-  "SourceUrl": "https://xxx.sharepoint.com/sites/correspondence/folder/file.pdf",
-  "DestinationUrl": "https://xxx.sharepoint.com/sites/correspondence/folder",
-  "EncryptedPassword": "BASE64_ENCRYPTED_PASSWORD"
+  "OneDriveUrl": "https://vipagentura.sharepoint.com/sites/correspondence/",
+  "SourceUrl": "https://vipagentura.sharepoint.com/sites/correspondence/Masiniai_2026_DNMF1/.../Pranesimas.pdf",
+  "DestinationUrl": "https://vipagentura.sharepoint.com/sites/correspondence/Masiniai_2026_DNMF1/...",
+  "EncryptedPassword": "BASE64..."
 }
 ```
 
-Plain password example:
+`PlainPassword` may be supplied instead of `EncryptedPassword`.
 
-```json
-{
-  "OneDriveUrl": "https://xxx.sharepoint.com/sites/correspondence/",
-  "SourceUrl": "https://xxx.sharepoint.com/sites/correspondence/folder/file.pdf",
-  "DestinationUrl": "https://xxx.sharepoint.com/sites/correspondence/folder",
-  "PlainPassword": "123456"
-}
-```
+Output is uploaded to `DestinationUrl/Protected/<source>_withpassword.pdf`.
 
-Success response:
+## Azure setting
+Set `PDF_PASSWORD_ENCRYPTION_KEY` to the 16-byte AES-128 key. It is intentionally not stored in this repository.
 
-```json
-{
-  "result": {
-    "message": "",
-    "errorMessage": "",
-    "innerErrorMessage": "",
-    "isSuccessful": true,
-    "protectedPDFFilePath": "https://xxx.sharepoint.com/sites/correspondence/folder/Merged/file_withpassword.pdf"
-  }
-}
-```
+EncryptedPassword decryption: AES-128 / ECB / PKCS7, Base64 input.
 
-Health check:
-
+## Health
 `GET /health`
-
-## Notes
-
-- This implementation uses the SharePoint site's **default document library**.
-- Microsoft Graph simple upload is intended for files up to 250 MB.
-- `DestinationUrl` is treated as a folder.
